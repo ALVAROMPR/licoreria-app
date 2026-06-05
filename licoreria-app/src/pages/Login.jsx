@@ -47,7 +47,7 @@ export default function Login() {
         {/* Logo / título */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <img
-            src="/LOGO CATERING SERVICES SIL&TE.png"
+            src="/icon-512.png"
             alt="Catering Services Sil&Te"
             style={{
               width: '100px',

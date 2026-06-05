@@ -43,7 +43,7 @@ export default function Layout({ pagina, setPagina }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <img
-            src="/LOGO CATERING SERVICES SIL&TE.png"
+            src="/icon-512.png"
             alt="Logo"
             style={{ height: "32px", width: "32px", objectFit: "contain" }}
           />
