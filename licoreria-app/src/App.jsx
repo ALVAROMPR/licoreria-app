@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
+import Layout from './components/Layout';
 
 function AppContent() {
   const { usuario, cargando } = useAuth();
+  const [pagina, setPagina] = useState('dashboard');
 
   if (cargando) {
     return (
@@ -12,6 +15,7 @@ function AppContent() {
         alignItems: 'center',
         justifyContent: 'center',
         color: 'var(--color-text-2)',
+        fontSize: '0.9rem',
       }}>
         Cargando...
       </div>
@@ -22,15 +26,7 @@ function AppContent() {
     return <Login />;
   }
 
-  // Aquí irá el layout principal en el Paso 4
-  return (
-    <div style={{ padding: '24px', textAlign: 'center' }}>
-      <p>✅ Sesión iniciada como <strong>{usuario.username}</strong></p>
-      <p className="text-muted text-small" style={{ marginTop: '8px' }}>
-        El layout principal se construye en el Paso 4.
-      </p>
-    </div>
-  );
+  return <Layout pagina={pagina} setPagina={setPagina} />;
 }
 
 export default function App() {
