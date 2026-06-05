@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../db";
+import { ArrowLeft, Download, ChevronRight } from "lucide-react";
 
 function formatBs(valor) {
   return `Bs ${Number(valor).toFixed(2)}`;
@@ -192,12 +193,8 @@ export default function Reporte() {
             marginBottom: "20px",
           }}
         >
-          <button
-            onClick={() => setVista("resumen")}
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 12px" }}
-          >
-            ← Volver
+          <button onClick={() => setVista("resumen")} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+            <ArrowLeft size={15} /> Volver
           </button>
           <h2 style={{ fontSize: "1.1rem" }}>
             Detalle · {formatFecha(sesionSel.fecha)}
@@ -302,21 +299,11 @@ export default function Reporte() {
       >
         <h2 style={{ fontSize: "1.1rem" }}>Reporte</h2>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 10px", fontSize: "0.78rem" }}
-            onClick={exportarCSV}
-            disabled={exportando}
-          >
-            CSV
+          <button className="btn btn-ghost" style={{ height: "34px", padding: "0 12px", fontSize: "0.8rem" }} onClick={exportarCSV} disabled={exportando}>
+            <Download size={14} /> CSV
           </button>
-          <button
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 10px", fontSize: "0.78rem" }}
-            onClick={exportarJSON}
-            disabled={exportando}
-          >
-            JSON
+          <button className="btn btn-ghost" style={{ height: "34px", padding: "0 12px", fontSize: "0.8rem" }} onClick={exportarJSON} disabled={exportando}>
+            <Download size={14} /> JSON
           </button>
         </div>
       </div>

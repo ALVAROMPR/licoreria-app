@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../db";
+import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 
 const CATEGORIAS = [
   "Cerveza",
@@ -147,16 +148,10 @@ export default function Productos() {
             marginBottom: "20px",
           }}
         >
-          <button
-            onClick={cancelar}
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 12px" }}
-          >
-            ← Volver
+          <button onClick={cancelar} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+            <ArrowLeft size={15} /> Volver
           </button>
-          <h2 style={{ fontSize: "1.1rem" }}>
-            {editandoId ? "Editar producto" : "Nuevo producto"}
-          </h2>
+          <h2>{editandoId ? "Editar producto" : "Nuevo producto"}</h2>
         </div>
 
         <div
@@ -242,12 +237,8 @@ export default function Productos() {
         }}
       >
         <h2 style={{ fontSize: "1.1rem" }}>Productos</h2>
-        <button
-          className="btn btn-primary"
-          style={{ height: "36px", padding: "0 14px", fontSize: "0.85rem" }}
-          onClick={abrirNuevo}
-        >
-          + Nuevo
+        <button className="btn btn-primary" style={{ height: "36px", padding: "0 14px", fontSize: "0.875rem" }} onClick={abrirNuevo}>
+          <Plus size={16} /> Nuevo
         </button>
       </div>
 
@@ -317,26 +308,18 @@ export default function Productos() {
                 }}
               >
                 <button
-                  className="btn btn-ghost"
-                  style={{
-                    height: "32px",
-                    padding: "0 10px",
-                    fontSize: "0.8rem",
-                  }}
+                  className="btn btn-ghost btn-icon"
                   onClick={() => abrirEditar(producto)}
+                  title="Editar"
                 >
-                  Editar
+                  <Pencil size={15} />
                 </button>
                 <button
-                  className="btn btn-danger"
-                  style={{
-                    height: "32px",
-                    padding: "0 10px",
-                    fontSize: "0.8rem",
-                  }}
+                  className="btn btn-danger btn-icon"
                   onClick={() => eliminar(producto)}
+                  title="Eliminar"
                 >
-                  ✕
+                  <Trash2 size={15} />
                 </button>
               </div>
             </div>

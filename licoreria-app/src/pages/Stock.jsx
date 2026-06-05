@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../db";
+import { ArrowLeft, Plus, History } from "lucide-react";
 
 const FORM_VACIO = {
   productoId: "",
@@ -151,14 +152,10 @@ export default function Stock() {
             marginBottom: "20px",
           }}
         >
-          <button
-            onClick={cancelar}
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 12px" }}
-          >
-            ← Volver
+          <button onClick={cancelar} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+            <ArrowLeft size={15} /> Volver
           </button>
-          <h2 style={{ fontSize: "1.1rem" }}>Registrar entrada de stock</h2>
+          <h2>Registrar entrada de stock</h2>
         </div>
 
         <div
@@ -279,14 +276,10 @@ export default function Stock() {
             marginBottom: "20px",
           }}
         >
-          <button
-            onClick={() => setVista("stock")}
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 12px" }}
-          >
-            ← Volver
+          <button onClick={() => setVista("stock")} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+            <ArrowLeft size={15} /> Volver
           </button>
-          <h2 style={{ fontSize: "1.1rem" }}>Historial de entradas</h2>
+          <h2>Historial de entradas</h2>
         </div>
 
         {historial.length === 0 ? (
@@ -398,19 +391,11 @@ export default function Stock() {
       >
         <h2 style={{ fontSize: "1.1rem" }}>Stock actual</h2>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            className="btn btn-ghost"
-            style={{ height: "36px", padding: "0 12px", fontSize: "0.8rem" }}
-            onClick={() => setVista("historial")}
-          >
-            Historial
+          <button className="btn btn-ghost" style={{ height: "36px", padding: "0 12px", fontSize: "0.875rem" }} onClick={() => setVista("historial")}>
+            <History size={15} /> Historial
           </button>
-          <button
-            className="btn btn-primary"
-            style={{ height: "36px", padding: "0 14px", fontSize: "0.85rem" }}
-            onClick={() => abrirNuevo()}
-          >
-            + Entrada
+          <button className="btn btn-primary" style={{ height: "36px", padding: "0 14px", fontSize: "0.875rem" }} onClick={() => abrirNuevo()}>
+            <Plus size={16} /> Entrada
           </button>
         </div>
       </div>
@@ -526,7 +511,7 @@ export default function Stock() {
                   }}
                   onClick={() => abrirNuevo(p.id)}
                 >
-                  + Agregar stock
+                  <Plus size={14} /> Agregar stock
                 </button>
               </div>
             );

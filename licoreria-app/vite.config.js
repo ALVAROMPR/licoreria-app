@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+// Descomentá la siguiente línea si instalaste @vitejs/plugin-basic-ssl
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
+  server:  { host: true },
+  preview: { host: true },
   plugins: [
     react(),
+    // basicSsl(),   // ← descomentá junto con el import de arriba para HTTPS local
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png'],

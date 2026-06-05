@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Plus } from "lucide-react";
 import {
   db,
   calcularCostoFIFO,
@@ -230,14 +231,10 @@ export default function Ventas() {
             marginBottom: "20px",
           }}
         >
-          <button
-            onClick={cancelar}
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 12px" }}
-          >
-            ← Volver
+          <button onClick={cancelar} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+            <ArrowLeft size={15} /> Volver
           </button>
-          <h2 style={{ fontSize: "1.1rem" }}>Nueva venta</h2>
+          <h2>Nueva venta</h2>
         </div>
 
         <div
@@ -470,7 +467,7 @@ export default function Ventas() {
           style={{ height: "36px", padding: "0 14px", fontSize: "0.85rem" }}
           onClick={abrirNueva}
         >
-          + Venta
+          <Plus size={16} /> Venta
         </button>
       </div>
 

@@ -5,145 +5,100 @@ import Stock from "../pages/Stock";
 import Ventas from "../pages/Ventas";
 import Reporte from "../pages/Reporte";
 import Configuracion from "../pages/Configuracion";
+import {
+  LayoutDashboard, Package, Warehouse,
+  ShoppingCart, BarChart3, Settings, LogOut,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { id: "dashboard", label: "Inicio", icon: "📊" },
-  { id: "productos", label: "Productos", icon: "📦" },
-  { id: "stock", label: "Stock", icon: "🏪" },
-  { id: "ventas", label: "Ventas", icon: "🛒" },
-  { id: "reporte", label: "Reporte", icon: "📈" },
+  { id: "dashboard", label: "Inicio",    Icon: LayoutDashboard },
+  { id: "productos", label: "Productos", Icon: Package          },
+  { id: "stock",     label: "Stock",     Icon: Warehouse        },
+  { id: "ventas",    label: "Ventas",    Icon: ShoppingCart     },
+  { id: "reporte",   label: "Reporte",   Icon: BarChart3        },
 ];
 
 export default function Layout({ pagina, setPagina }) {
   const { usuario, logout } = useAuth();
 
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        maxWidth: "480px",
-        margin: "0 auto",
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "14px 16px",
-          background: "var(--color-surface)",
-          borderBottom: "1px solid var(--color-border)",
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <img
-            src="/icon-512.png"
-            alt="Logo"
-            style={{ height: "32px", width: "32px", objectFit: "contain" }}
-          />
-          <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>Catering Services Sil&amp;Te</span>
+    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", maxWidth: "480px", margin: "0 auto" }}>
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <header style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "11px 16px",
+        background: "var(--color-surface)",
+        borderBottom: "1px solid var(--color-border)",
+        position: "sticky", top: 0, zIndex: 10,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img src="/icon-512.png" alt="Logo" style={{ height: "32px", width: "32px", objectFit: "contain", borderRadius: "8px" }} />
+          <div style={{ lineHeight: 1.25 }}>
+            <p style={{ fontWeight: 700, fontSize: "0.875rem" }}>Catering Services</p>
+            <p style={{ fontSize: "0.65rem", color: "var(--color-text-2)" }}>Sil&amp;Te · Gestión de Ventas</p>
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <button
             onClick={() => setPagina("configuracion")}
+            className="btn btn-ghost btn-icon"
+            title={`Configuración (${usuario.username})`}
             style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "6px 8px",
-              borderRadius: "var(--radius-sm)",
-              color:
-                pagina === "configuracion"
-                  ? "var(--color-primary)"
-                  : "var(--color-text-2)",
-              fontSize: "0.85rem",
+              color:      pagina === "configuracion" ? "var(--color-primary)" : undefined,
+              background: pagina === "configuracion" ? "var(--color-primary-dim)" : undefined,
+              borderColor:pagina === "configuracion" ? "transparent" : undefined,
             }}
           >
-            <span style={{ fontSize: "1rem" }}>⚙️</span>
-            <span>{usuario.username}</span>
+            <Settings size={17} />
           </button>
-          <button
-            onClick={logout}
-            className="btn btn-ghost"
-            style={{ height: "34px", padding: "0 12px", fontSize: "0.8rem" }}
-          >
-            Salir
+          <button onClick={logout} className="btn btn-ghost btn-icon" title="Cerrar sesión">
+            <LogOut size={17} />
           </button>
         </div>
       </header>
 
-      {/* Contenido */}
-      <main
-        style={{
-          flex: 1,
-          padding: "16px",
-          paddingBottom: "80px",
-          overflowY: "auto",
-        }}
-      >
-        {pagina === "dashboard" && <Dashboard setPagina={setPagina} />}
-        {pagina === "productos" && <Productos />}
-        {pagina === "stock" && <Stock />}
-        {pagina === "ventas" && <Ventas />}
-        {pagina === "reporte" && <Reporte />}
+      {/* ── Contenido ──────────────────────────────────────────────────────── */}
+      <main style={{ flex: 1, padding: "16px", paddingBottom: "84px", overflowY: "auto" }}>
+        {pagina === "dashboard"     && <Dashboard setPagina={setPagina} />}
+        {pagina === "productos"     && <Productos />}
+        {pagina === "stock"         && <Stock />}
+        {pagina === "ventas"        && <Ventas />}
+        {pagina === "reporte"       && <Reporte />}
         {pagina === "configuracion" && <Configuracion />}
       </main>
 
-      {/* Navegación inferior */}
-      <nav
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "100%",
-          maxWidth: "480px",
-          background: "var(--color-surface)",
-          borderTop: "1px solid var(--color-border)",
-          display: "flex",
-          zIndex: 10,
-        }}
-      >
-        {NAV_ITEMS.map((item) => {
-          const activo = pagina === item.id;
+      {/* ── Navegación inferior ────────────────────────────────────────────── */}
+      <nav style={{
+        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+        width: "100%", maxWidth: "480px",
+        background: "var(--color-surface)",
+        borderTop: "1px solid var(--color-border)",
+        display: "flex", zIndex: 10,
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}>
+        {NAV_ITEMS.map(({ id, label, Icon }) => {
+          const activo = pagina === id;
           return (
             <button
-              key={item.id}
-              onClick={() => setPagina(item.id)}
+              key={id}
+              onClick={() => setPagina(id)}
               style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "3px",
-                padding: "10px 4px",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: activo ? "var(--color-primary)" : "var(--color-text-2)",
-                borderTop: activo
-                  ? "2px solid var(--color-primary)"
-                  : "2px solid transparent",
+                flex: 1, display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                gap: "3px", padding: "9px 4px",
+                background: "none", border: "none", cursor: "pointer",
+                color: activo ? "var(--color-primary)" : "var(--color-text-3)",
                 transition: "color 0.15s",
               }}
             >
-              <span style={{ fontSize: "1.2rem", lineHeight: 1 }}>
-                {item.icon}
-              </span>
-              <span
-                style={{ fontSize: "0.65rem", fontWeight: activo ? 600 : 400 }}
-              >
-                {item.label}
+              {activo
+                ? <div className="nav-pill"><Icon size={19} strokeWidth={2.2} /></div>
+                : <Icon size={19} strokeWidth={1.7} />
+              }
+              <span className="nav-label" style={{ color: activo ? "var(--color-primary)" : "var(--color-text-3)" }}>
+                {label}
               </span>
             </button>
           );

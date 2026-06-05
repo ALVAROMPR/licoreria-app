@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { cambiarPassword, db } from "../db";
 import { useAuth } from "../context/AuthContext";
+import { Eye, EyeOff, User, Lock } from "lucide-react";
 
 export default function Configuracion() {
   const { usuario } = useAuth();
@@ -187,22 +188,14 @@ export default function Configuracion() {
         className="card"
         style={{ display: "flex", alignItems: "center", gap: "14px" }}
       >
-        <div
-          style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "50%",
-            background: "var(--color-primary)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1.1rem",
-            fontWeight: 700,
-            flexShrink: 0,
-            color: "#fff",
-          }}
-        >
-          {usuario.username.charAt(0).toUpperCase()}
+        <div style={{
+          width: "44px", height: "44px", borderRadius: "12px",
+          background: "var(--color-primary-dim)",
+          border: "1px solid rgba(124,111,239,0.25)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          <User size={20} color="var(--color-primary)" />
         </div>
         <div>
           <p style={{ fontWeight: 600 }}>{usuario.username}</p>
@@ -215,7 +208,10 @@ export default function Configuracion() {
         className="card"
         style={{ display: "flex", flexDirection: "column", gap: "16px" }}
       >
-        <h3 style={{ fontSize: "0.95rem" }}>Cambiar contraseña</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Lock size={16} color="var(--color-text-2)" />
+          <h3>Cambiar contraseña</h3>
+        </div>
 
         <div className="input-group">
           <label>Contraseña actual</label>
@@ -234,20 +230,14 @@ export default function Configuracion() {
               type="button"
               onClick={() => setVerActual((v) => !v)}
               style={{
-                position: "absolute",
-                right: "12px",
-                top: "50%",
+                position: "absolute", right: "11px", top: "50%",
                 transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--color-text-2)",
-                fontSize: "1rem",
-                padding: "4px",
-                lineHeight: 1,
+                background: "none", border: "none", cursor: "pointer",
+                color: "var(--color-text-2)", padding: "4px",
+                display: "flex", alignItems: "center", lineHeight: 1,
               }}
             >
-              {verActual ? "🙈" : "👁️"}
+              {verActual ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
           </div>
         </div>
@@ -269,20 +259,14 @@ export default function Configuracion() {
               type="button"
               onClick={() => setVerNueva((v) => !v)}
               style={{
-                position: "absolute",
-                right: "12px",
-                top: "50%",
+                position: "absolute", right: "11px", top: "50%",
                 transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--color-text-2)",
-                fontSize: "1rem",
-                padding: "4px",
-                lineHeight: 1,
+                background: "none", border: "none", cursor: "pointer",
+                color: "var(--color-text-2)", padding: "4px",
+                display: "flex", alignItems: "center", lineHeight: 1,
               }}
             >
-              {verNueva ? "🙈" : "👁️"}
+              {verNueva ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
           </div>
           {form.nueva.length > 0 && (

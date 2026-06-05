@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { verificarLogin } from '../db';
 import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [cargando, setCargando] = useState(false);
-  const [verPassword, setVerPassword] = useState(false);
+  const [username, setUsername]         = useState('');
+  const [password, setPassword]         = useState('');
+  const [error, setError]               = useState('');
+  const [cargando, setCargando]         = useState(false);
+  const [verPassword, setVerPassword]   = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -16,16 +17,11 @@ export default function Login() {
       setError('Ingresá usuario y contraseña.');
       return;
     }
-
     setCargando(true);
     setError('');
-
     try {
       const usuario = await verificarLogin(username.trim(), password);
-      if (!usuario) {
-        setError('Usuario o contraseña incorrectos.');
-        return;
-      }
+      if (!usuario) { setError('Usuario o contraseña incorrectos.'); return; }
       login(usuario);
     } catch {
       setError('Error al iniciar sesión. Intentá de nuevo.');
@@ -35,50 +31,41 @@ export default function Login() {
   }
 
   return (
-    <div style={{
-      minHeight: '100dvh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
-    }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '360px' }}>
 
-        {/* Logo / título */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <img
-            src="/icon-512.png"
-            alt="Catering Services Sil&Te"
-            style={{
-              width: '100px',
-              height: '100px',
-              objectFit: 'contain',
-              display: 'block',
-              margin: '0 auto 16px',
-            }}
-          />
-          <h1 style={{ fontSize: '1.3rem' }}>Catering Services Sil&amp;Te</h1>
-          <p className="text-muted text-small" style={{ marginTop: '4px' }}>
-            Sistema de gestión de ventas - Licorería
+        {/* Branding */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{
+            width: '80px', height: '80px',
+            borderRadius: '22px',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 18px',
+            boxShadow: '0 4px 24px rgba(124,111,239,0.18)',
+          }}>
+            <img src="/icon-512.png" alt="Logo" style={{ width: '54px', height: '54px', objectFit: 'contain' }} />
+          </div>
+          <h1 style={{ fontSize: '1.2rem', letterSpacing: '-0.02em' }}>
+            Catering Services Sil&amp;Te
+          </h1>
+          <p className="text-muted text-small" style={{ marginTop: '5px' }}>
+            Sistema de gestión de ventas · Licorería
           </p>
         </div>
 
         {/* Formulario */}
-        <div className="card">
+        <div className="card" style={{ padding: '22px' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
             <div className="input-group">
               <label htmlFor="username">Usuario</label>
               <input
-                id="username"
-                className="input"
-                type="text"
+                id="username" className="input" type="text"
                 placeholder="admin"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                autoComplete="username"
-                autoCapitalize="none"
-                spellCheck={false}
+                value={username} onChange={e => setUsername(e.target.value)}
+                autoComplete="username" autoCapitalize="none" spellCheck={false}
               />
             </div>
 
@@ -86,12 +73,10 @@ export default function Login() {
               <label htmlFor="password">Contraseña</label>
               <div style={{ position: 'relative' }}>
                 <input
-                  id="password"
-                  className="input"
+                  id="password" className="input"
                   type={verPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  value={password} onChange={e => setPassword(e.target.value)}
                   autoComplete="current-password"
                   style={{ paddingRight: '44px' }}
                 />
@@ -99,42 +84,32 @@ export default function Login() {
                   type="button"
                   onClick={() => setVerPassword(v => !v)}
                   style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
+                    position: 'absolute', right: '11px', top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--color-text-2)',
-                    fontSize: '1rem',
-                    padding: '4px',
-                    lineHeight: 1,
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--color-text-2)', padding: '4px',
+                    display: 'flex', alignItems: 'center', lineHeight: 1,
                   }}
-                  aria-label={verPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  aria-label={verPassword ? 'Ocultar' : 'Ver contraseña'}
                 >
-                  {verPassword ? '🙈' : '👁️'}
+                  {verPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
-            {error && (
-              <div className="alert alert-danger">{error}</div>
-            )}
+            {error && <div className="alert alert-danger">{error}</div>}
 
             <button
-              type="submit"
-              className="btn btn-primary btn-full"
+              type="submit" className="btn btn-primary btn-full"
               disabled={cargando}
-              style={{ marginTop: '4px' }}
+              style={{ height: '44px', fontSize: '0.9375rem', marginTop: '4px' }}
             >
-              {cargando ? 'Verificando...' : 'Ingresar'}
+              {cargando ? 'Verificando...' : <><LogIn size={17} /> Ingresar</>}
             </button>
-
           </form>
         </div>
 
-        <p className="text-muted text-small" style={{ textAlign: 'center', marginTop: '20px' }}>
+        <p className="text-xs text-muted" style={{ textAlign: 'center', marginTop: '18px' }}>
           v1.0.0 · Solo uso local
         </p>
       </div>
