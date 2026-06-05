@@ -1,8 +1,10 @@
 import { useAuth } from "../context/AuthContext";
+import Dashboard from "../pages/Dashboard";
 import Productos from "../pages/Productos";
 import Stock from "../pages/Stock";
 import Ventas from "../pages/Ventas";
 import Reporte from "../pages/Reporte";
+import Configuracion from "../pages/Configuracion";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Inicio", icon: "📊" },
@@ -25,7 +27,7 @@ export default function Layout({ pagina, setPagina }) {
         margin: "0 auto",
       }}
     >
-      {/* ── Header ── */}
+      {/* Header */}
       <header
         style={{
           display: "flex",
@@ -43,15 +45,28 @@ export default function Layout({ pagina, setPagina }) {
           <span style={{ fontSize: "1.3rem" }}>🍾</span>
           <span style={{ fontWeight: 600, fontSize: "1rem" }}>Licorería</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button
+            onClick={() => setPagina("configuracion")}
             style={{
-              fontSize: "0.8rem",
-              color: "var(--color-text-2)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 8px",
+              borderRadius: "var(--radius-sm)",
+              color:
+                pagina === "configuracion"
+                  ? "var(--color-primary)"
+                  : "var(--color-text-2)",
+              fontSize: "0.85rem",
             }}
           >
-            {usuario.username}
-          </span>
+            <span style={{ fontSize: "1rem" }}>⚙️</span>
+            <span>{usuario.username}</span>
+          </button>
           <button
             onClick={logout}
             className="btn btn-ghost"
@@ -62,7 +77,7 @@ export default function Layout({ pagina, setPagina }) {
         </div>
       </header>
 
-      {/* ── Contenido ── */}
+      {/* Contenido */}
       <main
         style={{
           flex: 1,
@@ -71,21 +86,15 @@ export default function Layout({ pagina, setPagina }) {
           overflowY: "auto",
         }}
       >
+        {pagina === "dashboard" && <Dashboard setPagina={setPagina} />}
         {pagina === "productos" && <Productos />}
         {pagina === "stock" && <Stock />}
         {pagina === "ventas" && <Ventas />}
         {pagina === "reporte" && <Reporte />}
-        {!["productos", "stock", "ventas", "reporte"].includes(pagina) && (
-          <p
-            className="text-muted text-small"
-            style={{ textAlign: "center", marginTop: "40px" }}
-          >
-            Sección en construcción.
-          </p>
-        )}
+        {pagina === "configuracion" && <Configuracion />}
       </main>
 
-      {/* ── Navegación inferior ── */}
+      {/* Navegación inferior */}
       <nav
         style={{
           position: "fixed",

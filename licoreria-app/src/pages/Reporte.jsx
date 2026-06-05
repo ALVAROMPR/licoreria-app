@@ -155,16 +155,17 @@ export default function Reporte() {
             }),
             prodMap[v.productoId]?.nombre ?? "N/A",
             v.cantidad,
-            v.precioVenta.toFixed(2),
-            v.costoPromedio.toFixed(2),
-            (v.precioVenta * v.cantidad).toFixed(2),
-            v.recuperacion.toFixed(2),
-            v.ganancia.toFixed(2),
+
+            v.precioVenta.toFixed(2).replace(".", ","),
+            v.costoPromedio.toFixed(2).replace(".", ","),
+            (v.precioVenta * v.cantidad).toFixed(2).replace(".", ","),
+            v.recuperacion.toFixed(2).replace(".", ","),
+            v.ganancia.toFixed(2).replace(".", ","),
           ];
         }),
       ];
 
-      const csv = filas.map((f) => f.join(",")).join("\n");
+      const csv = filas.map((f) => f.join(";")).join("\n");
       const blob = new Blob(["\uFEFF" + csv], {
         type: "text/csv;charset=utf-8",
       });
