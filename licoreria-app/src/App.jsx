@@ -1,22 +1,22 @@
-import { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './pages/Login';
-import Layout from './components/Layout';
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Layout from "./components/Layout";
 
 function AppContent() {
-  const { usuario, cargando } = useAuth();
-  const [pagina, setPagina] = useState('dashboard');
+  const { usuario, cargando, pagina, setPagina } = useAuth();
 
   if (cargando) {
     return (
-      <div style={{
-        minHeight: '100dvh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'var(--color-text-2)',
-        fontSize: '0.9rem',
-      }}>
+      <div
+        style={{
+          minHeight: "100dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "var(--color-text-2)",
+          fontSize: "0.9rem",
+        }}
+      >
         Cargando...
       </div>
     );

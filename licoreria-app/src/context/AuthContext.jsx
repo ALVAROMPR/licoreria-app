@@ -1,14 +1,19 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 const AuthContext = createContext(null);
-
-const SESSION_KEY = 'licoreria_session';
+const SESSION_KEY = "licoreria_session";
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [pagina, setPagina] = useState("dashboard");
 
-  // Al montar, revisar si hay sesión guardada en sessionStorage
   useEffect(() => {
     try {
       const guardado = sessionStorage.getItem(SESSION_KEY);
@@ -23,19 +28,22 @@ export function AuthProvider({ children }) {
   }, []);
 
   function login(usuarioData) {
-    // Guardamos solo id y username — nunca el hash
     const sesion = { id: usuarioData.id, username: usuarioData.username };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
+    setPagina("dashboard"); // siempre resetear al login
     setUsuario(sesion);
   }
 
   function logout() {
     sessionStorage.removeItem(SESSION_KEY);
+    setPagina("dashboard"); // limpiar también al salir
     setUsuario(null);
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, login, logout, cargando }}>
+    <AuthContext.Provider
+      value={{ usuario, login, logout, cargando, pagina, setPagina }}
+    >
       {children}
     </AuthContext.Provider>
   );

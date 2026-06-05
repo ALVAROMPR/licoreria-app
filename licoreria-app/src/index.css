@@ -153,3 +153,20 @@ h3 { font-size: 1rem;    font-weight: 600; }
 .mt-16  { margin-top: 16px; }
 .mt-24  { margin-top: 24px; }
 .w-full { width: 100%; }
+
+/* ─── Responsivo escritorio ────────────────────────────────────────────────── */
+@media (min-width: 520px) {
+  body {
+    background: #0a0c12;
+    display: flex;
+    justify-content: center;
+  }
+
+  body > #root {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100dvh;
+    background: var(--color-bg);
+    box-shadow: 0 0 0 1px var(--color-border);
+  }
+}
