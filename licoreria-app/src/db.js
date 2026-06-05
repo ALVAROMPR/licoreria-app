@@ -54,7 +54,10 @@ db.version(1).stores({
 });
 
 // ─── Inicialización: crear usuario admin por defecto ─────────────────────────
-db.on('ready', async () => {
+
+
+// ─── Inicialización explícita ─────────────────────────────────────────────────
+export async function inicializarDB() {
   const count = await db.usuarios.count();
   if (count === 0) {
     const hash = await hashPassword('admin123');
@@ -62,8 +65,9 @@ db.on('ready', async () => {
       username: 'admin',
       passwordHash: hash,
     });
+    console.log('Usuario admin creado.');
   }
-});
+}
 
 // ─── Helpers de autenticación ────────────────────────────────────────────────
 
