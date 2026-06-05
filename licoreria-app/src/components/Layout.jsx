@@ -1,5 +1,8 @@
 import { useAuth } from "../context/AuthContext";
 import Productos from "../pages/Productos";
+import Stock from "../pages/Stock";
+import Ventas from "../pages/Ventas";
+import Reporte from "../pages/Reporte";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Inicio", icon: "📊" },
@@ -69,7 +72,10 @@ export default function Layout({ pagina, setPagina }) {
         }}
       >
         {pagina === "productos" && <Productos />}
-        {pagina !== "productos" && (
+        {pagina === "stock" && <Stock />}
+        {pagina === "ventas" && <Ventas />}
+        {pagina === "reporte" && <Reporte />}
+        {!["productos", "stock", "ventas", "reporte"].includes(pagina) && (
           <p
             className="text-muted text-small"
             style={{ textAlign: "center", marginTop: "40px" }}

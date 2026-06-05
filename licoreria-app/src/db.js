@@ -145,11 +145,11 @@ export async function descontarStock(lotesAfectados) {
 
 // Obtener o crear la sesión del día actual
 export async function getSesionHoy() {
-  const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  let sesion = await db.sesiones_venta
-    .where('fecha')
-    .equals(hoy)
-    .first();
+  const hoy = new Date().toISOString().split('T')[0];
+
+  // Buscar sesión existente del día
+  const sesiones = await db.sesiones_venta.toArray();
+  let sesion = sesiones.find(s => s.fecha === hoy);
 
   if (!sesion) {
     const id = await db.sesiones_venta.add({
