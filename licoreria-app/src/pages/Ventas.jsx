@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   db,
   calcularCostoFIFO,
@@ -35,6 +35,7 @@ export default function Ventas() {
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const costoEditadoRef = useRef(false);
 
   useEffect(() => {
     cargarDatos();
@@ -107,11 +108,12 @@ export default function Ventas() {
       );
       if (resultado) {
         setCostoSugerido(resultado.costoPromedio);
-        // Solo pre-llenar el costo si el usuario no lo modificó manualmente
-        setForm((f) => ({
-          ...f,
-          costoUnitario: resultado.costoPromedio.toFixed(2),
-        }));
+        if (!costoEditadoRef.current) {
+          setForm((f) => ({
+            ...f,
+            costoUnitario: resultado.costoPromedio.toFixed(2),
+          }));
+        }
       }
     }
 
@@ -119,6 +121,7 @@ export default function Ventas() {
   }, [form.productoId, form.cantidad]);
 
   function abrirNueva() {
+    costoEditadoRef.current = false;
     setForm(FORM_VACIO);
     setCostoSugerido(null);
     setStockDisponible(null);
@@ -128,6 +131,7 @@ export default function Ventas() {
   }
 
   function cancelar() {
+    costoEditadoRef.current = false;
     setVista("ventas");
     setForm(FORM_VACIO);
     setCostoSugerido(null);
@@ -246,14 +250,15 @@ export default function Ventas() {
             <select
               className="input"
               value={form.productoId}
-              onChange={(e) =>
+              onChange={(e) => {
+                costoEditadoRef.current = false;
                 setForm((f) => ({
                   ...f,
                   productoId: e.target.value,
                   cantidad: "",
                   costoUnitario: "",
-                }))
-              }
+                }));
+              }}
             >
               <option value="">— Seleccioná un producto —</option>
               {productos.map((p) => (
@@ -351,9 +356,10 @@ export default function Ventas() {
               min="0"
               step="0.01"
               value={form.costoUnitario}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, costoUnitario: e.target.value }))
-              }
+              onChange={(e) => {
+                costoEditadoRef.current = true;
+                setForm((f) => ({ ...f, costoUnitario: e.target.value }));
+              }}
             />
           </div>
 

@@ -3,7 +3,6 @@ import {
   useContext,
   useState,
   useEffect,
-  useCallback,
 } from "react";
 
 const AuthContext = createContext(null);

@@ -42,8 +42,12 @@ export default function Layout({ pagina, setPagina }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "1.3rem" }}>🍾</span>
-          <span style={{ fontWeight: 600, fontSize: "1rem" }}>Licorería</span>
+          <img
+            src="/LOGO CATERING SERVICES SIL&TE.png"
+            alt="Logo"
+            style={{ height: "32px", width: "32px", objectFit: "contain" }}
+          />
+          <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>Catering Services Sil&amp;Te</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <button

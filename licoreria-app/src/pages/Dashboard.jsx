@@ -71,7 +71,7 @@ export default function Dashboard({ setPagina }) {
   async function cargarDatos() {
     setCargando(true);
     try {
-      const hoy = new Date().toISOString().split("T")[0];
+      const hoy = new Date().toLocaleDateString("en-CA");
       const prods = await db.productos.toArray();
       const prodMap = {};
       prods.forEach((p) => {
@@ -223,7 +223,7 @@ export default function Dashboard({ setPagina }) {
             letterSpacing: "0.05em",
           }}
         >
-          Hoy · {formatFecha(new Date().toISOString().split("T")[0])}
+          Hoy · {formatFecha(new Date().toLocaleDateString("en-CA"))}
         </p>
         <div
           style={{

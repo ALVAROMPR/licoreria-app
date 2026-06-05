@@ -22,14 +22,12 @@ export default function Login() {
 
     try {
       const usuario = await verificarLogin(username.trim(), password);
-       console.log('resultado login:', usuario); //para ver si hay errores en la consulta
       if (!usuario) {
         setError('Usuario o contraseña incorrectos.');
         return;
       }
       login(usuario);
-    } catch (err){        //quitar el err
-      console.error('error login:', err); // ← y esto para ver si hay errores inesperados
+    } catch {
       setError('Error al iniciar sesión. Intentá de nuevo.');
     } finally {
       setCargando(false);
@@ -48,22 +46,20 @@ export default function Login() {
 
         {/* Logo / título */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '16px',
-            background: 'var(--color-primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.6rem',
-            margin: '0 auto 16px',
-          }}>
-            🍾
-          </div>
-          <h1 style={{ fontSize: '1.4rem' }}>Licorería</h1>
+          <img
+            src="/LOGO CATERING SERVICES SIL&TE.png"
+            alt="Catering Services Sil&Te"
+            style={{
+              width: '100px',
+              height: '100px',
+              objectFit: 'contain',
+              display: 'block',
+              margin: '0 auto 16px',
+            }}
+          />
+          <h1 style={{ fontSize: '1.3rem' }}>Catering Services Sil&amp;Te</h1>
           <p className="text-muted text-small" style={{ marginTop: '4px' }}>
-            Control de stock y ventas
+            Sistema de gestión de ventas - Licorería
           </p>
         </div>
 
