@@ -1,7 +1,10 @@
-import { useState, useRef } from "react";
-import { cambiarPassword, db } from "../db";
+import { useState, useRef, useEffect } from "react";
+import { cambiarPassword, db, getBiometria, guardarBiometria, eliminarBiometria } from "../db";
 import { useAuth } from "../context/AuthContext";
-import { Eye, EyeOff, User, Lock } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Fingerprint } from "lucide-react";
+import { isBiometricAvailable, registrarBiometrico } from "../utils/webauthn";
+
+const BIO_SKIP_KEY = "licoreria_bio_skip";
 
 export default function Configuracion() {
   const { usuario } = useAuth();
@@ -22,6 +25,55 @@ export default function Configuracion() {
   const [importando, setImportando] = useState(false);
   const [errorBackup, setErrorBackup] = useState("");
   const [exitoBackup, setExitoBackup] = useState("");
+
+  const [bioDisponible, setBioDisponible]   = useState(false);
+  const [bioRegistrada, setBioRegistrada]   = useState(false);
+  const [gestionandoBio, setGestionandoBio] = useState(false);
+  const [mensajeBio, setMensajeBio]         = useState(null); // { texto, tipo: "success"|"danger" }
+
+  useEffect(() => {
+    async function cargarBio() {
+      const disponible = await isBiometricAvailable();
+      setBioDisponible(disponible);
+      if (disponible) {
+        const bio = await getBiometria();
+        setBioRegistrada(!!bio);
+      }
+    }
+    cargarBio();
+  }, []);
+
+  async function handleHabilitarBio() {
+    setGestionandoBio(true);
+    setMensajeBio(null);
+    try {
+      const { credentialId, username: uname } = await registrarBiometrico(
+        usuario.id,
+        usuario.username,
+      );
+      await guardarBiometria(credentialId, uname);
+      localStorage.removeItem(BIO_SKIP_KEY);
+      setBioRegistrada(true);
+      setMensajeBio({ texto: "Huella digital configurada correctamente.", tipo: "success" });
+    } catch (err) {
+      if (err.name === "NotAllowedError") {
+        setMensajeBio({ texto: "Registro cancelado.", tipo: "danger" });
+      } else {
+        setMensajeBio({ texto: "No se pudo configurar. Intentá de nuevo.", tipo: "danger" });
+      }
+    } finally {
+      setGestionandoBio(false);
+    }
+  }
+
+  async function handleDeshabilitarBio() {
+    const ok = window.confirm("¿Deshabilitar el acceso con huella digital?");
+    if (!ok) return;
+    await eliminarBiometria();
+    localStorage.setItem(BIO_SKIP_KEY, "0");
+    setBioRegistrada(false);
+    setMensajeBio({ texto: "Acceso biométrico deshabilitado.", tipo: "success" });
+  }
 
   // ── Cambio de contraseña ───────────────────────────────────────────────────
   async function handleCambiar() {
@@ -202,6 +254,53 @@ export default function Configuracion() {
           <p className="text-muted text-small">Administrador</p>
         </div>
       </div>
+
+      {/* Acceso biométrico */}
+      {bioDisponible && (
+        <div className="card" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Fingerprint size={16} color="var(--color-text-2)" />
+            <h3>Acceso biométrico</h3>
+          </div>
+
+          {bioRegistrada ? (
+            <>
+              <div className="alert alert-success" style={{ fontSize: "0.85rem" }}>
+                Inicio de sesión con huella digital habilitado.
+              </div>
+              <button
+                className="btn btn-ghost btn-full"
+                onClick={handleDeshabilitarBio}
+                disabled={gestionandoBio}
+                style={{ justifyContent: "flex-start", gap: "10px", color: "var(--color-danger)" }}
+              >
+                <Fingerprint size={15} />
+                {gestionandoBio ? "Deshabilitando..." : "Deshabilitar huella digital"}
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-muted text-small" style={{ lineHeight: 1.6 }}>
+                Iniciá sesión con tu huella digital o reconocimiento facial sin ingresar contraseña.
+              </p>
+              <button
+                className="btn btn-primary btn-full"
+                onClick={handleHabilitarBio}
+                disabled={gestionandoBio}
+              >
+                <Fingerprint size={16} />
+                {gestionandoBio ? "Configurando..." : "Habilitar huella digital"}
+              </button>
+            </>
+          )}
+
+          {mensajeBio && (
+            <div className={`alert alert-${mensajeBio.tipo}`} style={{ fontSize: "0.85rem" }}>
+              {mensajeBio.texto}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Cambio de contraseña */}
       <div

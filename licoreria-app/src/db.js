@@ -31,6 +31,16 @@ db.version(2).stores({
   return tx.sesiones_venta.toCollection().modify({ abierta: false });
 });
 
+// v3: agrega tabla para credenciales biométricas WebAuthn
+db.version(3).stores({
+  usuarios:       '++id, username',
+  productos:      '++id, nombre, categoria',
+  lotes:          '++id, productoId, fecha',
+  ventas:         '++id, productoId, sesionId, fecha',
+  sesiones_venta: '++id, fecha, abierta, fechaApertura',
+  biometria:      '++id',
+});
+
 // ─── Inicialización explícita ─────────────────────────────────────────────────
 export async function inicializarDB() {
   const count = await db.usuarios.count();
@@ -89,6 +99,26 @@ export async function descontarStock(lotesAfectados) {
       await db.lotes.update(loteId, { cantidadRestante: lote.cantidadRestante - cantidadUsada });
     }
   });
+}
+
+// ─── Helpers de biometría ────────────────────────────────────────────────────
+
+export async function getBiometria() {
+  return (await db.biometria.toCollection().first()) ?? null;
+}
+
+export async function guardarBiometria(credentialId, username) {
+  await db.biometria.clear();
+  await db.biometria.add({ credentialId, username });
+}
+
+export async function eliminarBiometria() {
+  await db.biometria.clear();
+}
+
+// Retorna el usuario por username (usado tras autenticación biométrica)
+export async function getUsuarioPorUsername(username) {
+  return (await db.usuarios.where('username').equals(username).first()) ?? null;
 }
 
 // ─── Helpers de caja ─────────────────────────────────────────────────────────
