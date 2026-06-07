@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { db } from "../db";
+import { db, getSesionAbierta, abrirCaja, cerrarCaja } from "../db";
 import {
   DollarSign, TrendingUp, RefreshCw, Package,
   AlertTriangle, AlertCircle, ShoppingCart,
-  ChevronRight, Plus, Warehouse, BarChart3,
+  ChevronRight, ChevronDown, Warehouse, BarChart3,
+  LockOpen, Lock,
 } from "lucide-react";
 
 function formatBs(valor) {
@@ -46,32 +47,44 @@ const ACCESOS = [
 ];
 
 export default function Dashboard({ setPagina }) {
-  const [sesionHoy, setSesionHoy]       = useState(null);
-  const [ventasHoy, setVentasHoy]       = useState(0);
-  const [stockBajo, setStockBajo]       = useState([]);
-  const [sinStock, setSinStock]         = useState([]);
+  const [sesion, setSesion]                 = useState(null); // sesión actualmente abierta
+  const [sesionDisplay, setSesionDisplay]   = useState(null); // para mostrar stats
+  const [ventasSesion, setVentasSesion]     = useState(0);
+  const [stockBajo, setStockBajo]           = useState([]);
+  const [sinStock, setSinStock]             = useState([]);
   const [totalProductos, setTotalProductos] = useState(0);
   const [ultimasVentas, setUltimasVentas]   = useState([]);
-  const [cargando, setCargando]         = useState(true);
-
-  useEffect(() => { cargarDatos(); }, []);
+  const [cargando, setCargando]             = useState(true); // true desde el inicio, sin llamada síncrona en effect
+  const [accionCaja, setAccionCaja]         = useState(false);
+  const [mostrarSinStock, setMostrarSinStock]   = useState(false);
+  const [mostrarStockBajo, setMostrarStockBajo] = useState(false);
 
   async function cargarDatos() {
-    setCargando(true);
     try {
-      const hoy = new Date().toLocaleDateString("en-CA");
       const prods = await db.productos.toArray();
       const prodMap = {};
       prods.forEach(p => { prodMap[p.id] = p; });
       setTotalProductos(prods.length);
 
-      const sesiones = await db.sesiones_venta.toArray();
-      const sesHoy = sesiones.find(s => s.fecha === hoy) ?? null;
-      setSesionHoy(sesHoy);
+      const sesionActual = await getSesionAbierta();
+      setSesion(sesionActual);
 
-      if (sesHoy) {
-        const cnt = await db.ventas.where("sesionId").equals(sesHoy.id).count();
-        setVentasHoy(cnt);
+      // Para métricas: sesión abierta o la más reciente si está cerrada
+      const display = sesionActual
+        ?? (await db.sesiones_venta.orderBy("id").last())
+        ?? null;
+      setSesionDisplay(display);
+
+      if (display) {
+        const cnt = await db.ventas.where("sesionId").equals(display.id).count();
+        setVentasSesion(cnt);
+        const ventas = await db.ventas.where("sesionId").equals(display.id).sortBy("fecha");
+        setUltimasVentas(
+          ventas.slice(-5).reverse().map(v => ({ ...v, producto: prodMap[v.productoId] }))
+        );
+      } else {
+        setVentasSesion(0);
+        setUltimasVentas([]);
       }
 
       const lotes = await db.lotes.toArray();
@@ -89,11 +102,35 @@ export default function Dashboard({ setPagina }) {
       }
       setSinStock(cero);
       setStockBajo(bajo);
-
-      const ventas = await db.ventas.orderBy("fecha").reverse().limit(5).toArray();
-      setUltimasVentas(ventas.map(v => ({ ...v, producto: prodMap[v.productoId] })));
     } finally {
       setCargando(false);
+    }
+  }
+
+  useEffect(() => { cargarDatos(); }, []);
+
+  async function handleAbrirCaja() {
+    setAccionCaja(true);
+    try {
+      await abrirCaja();
+      await cargarDatos();
+    } finally {
+      setAccionCaja(false);
+    }
+  }
+
+  async function handleCerrarCaja() {
+    if (!sesion) return;
+    const ok = window.confirm(
+      "¿Cerrar la caja?\n\nNo se podrán registrar ventas hasta que la abras nuevamente."
+    );
+    if (!ok) return;
+    setAccionCaja(true);
+    try {
+      await cerrarCaja(sesion.id);
+      await cargarDatos();
+    } finally {
+      setAccionCaja(false);
     }
   }
 
@@ -105,65 +142,184 @@ export default function Dashboard({ setPagina }) {
     );
   }
 
-  const margen = sesionHoy?.totalVendido > 0
-    ? ((sesionHoy.totalGanancia / sesionHoy.totalVendido) * 100).toFixed(1) + "%"
+  const cajaAbierta = sesion !== null;
+  const margen = sesionDisplay?.totalVendido > 0
+    ? ((sesionDisplay.totalGanancia / sesionDisplay.totalVendido) * 100).toFixed(1) + "%"
     : "—";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
+      {/* ── Estado de caja ── */}
+      <div style={{
+        borderRadius: "var(--radius-lg)",
+        border: `1px solid ${cajaAbierta ? "rgba(34,197,94,0.3)" : "var(--color-border)"}`,
+        background: cajaAbierta ? "rgba(34,197,94,0.06)" : "var(--color-surface)",
+        padding: "16px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "12px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+          <div style={{
+            width: "40px", height: "40px", borderRadius: "10px", flexShrink: 0,
+            background: cajaAbierta ? "rgba(34,197,94,0.15)" : "var(--color-surface2)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {cajaAbierta
+              ? <LockOpen size={20} color="var(--color-success)" />
+              : <Lock     size={20} color="var(--color-text-2)"  />
+            }
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: cajaAbierta ? "var(--color-success)" : "var(--color-text)" }}>
+              {cajaAbierta ? "Caja abierta" : "Caja cerrada"}
+            </p>
+            <p className="text-muted text-small">
+              {cajaAbierta && sesion?.fechaApertura
+                ? `Desde las ${formatHora(sesion.fechaApertura)}`
+                : sesionDisplay?.fechaCierre
+                ? `Cerró a las ${formatHora(sesionDisplay.fechaCierre)}`
+                : "Sin sesiones previas"
+              }
+            </p>
+          </div>
+        </div>
+        <button
+          className={cajaAbierta ? "btn btn-ghost" : "btn btn-primary"}
+          style={{ height: "36px", padding: "0 14px", fontSize: "0.825rem", flexShrink: 0 }}
+          onClick={cajaAbierta ? handleCerrarCaja : handleAbrirCaja}
+          disabled={accionCaja}
+        >
+          {accionCaja ? "…" : cajaAbierta ? "Cerrar caja" : "Abrir caja"}
+        </button>
+      </div>
+
       {/* ── Alertas ── */}
       {(sinStock.length > 0 || stockBajo.length > 0) && (
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+
           {sinStock.length > 0 && (
-            <div className="alert alert-danger" style={{ justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <AlertTriangle size={16} />
-                <span>{sinStock.length} producto{sinStock.length !== 1 ? "s" : ""} sin stock</span>
-              </div>
-              <button
-                onClick={() => setPagina("stock")}
-                style={{ background: "none", border: "none", color: "#fca5a5", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}
+            <div>
+              <div
+                className="alert alert-danger"
+                style={{
+                  justifyContent: "space-between",
+                  borderRadius: mostrarSinStock
+                    ? "var(--radius-md) var(--radius-md) 0 0"
+                    : "var(--radius-md)",
+                }}
               >
-                Ver <ChevronRight size={14} />
-              </button>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <AlertTriangle size={16} />
+                  <span>{sinStock.length} producto{sinStock.length !== 1 ? "s" : ""} sin stock</span>
+                </div>
+                <button
+                  onClick={() => setMostrarSinStock(v => !v)}
+                  style={{ background: "none", border: "none", color: "#fca5a5", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}
+                >
+                  Ver {mostrarSinStock ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </button>
+              </div>
+              {mostrarSinStock && (
+                <div style={{
+                  background: "rgba(239,68,68,0.06)",
+                  border: "1px solid rgba(239,68,68,0.25)",
+                  borderTop: "none",
+                  borderRadius: "0 0 var(--radius-md) var(--radius-md)",
+                  padding: "6px 14px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}>
+                  {sinStock.map((p, i) => (
+                    <div key={p.id} style={{
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                      padding: "6px 0",
+                      borderBottom: i < sinStock.length - 1 ? "1px solid rgba(239,68,68,0.1)" : "none",
+                    }}>
+                      <span style={{ fontSize: "0.85rem" }}>{p.nombre}</span>
+                      <span className="badge badge-red">Sin stock</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
+
           {stockBajo.length > 0 && (
-            <div className="alert alert-warning" style={{ justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <AlertCircle size={16} />
-                <span>{stockBajo.length} producto{stockBajo.length !== 1 ? "s" : ""} con stock bajo (≤5)</span>
-              </div>
-              <button
-                onClick={() => setPagina("stock")}
-                style={{ background: "none", border: "none", color: "#fcd34d", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}
+            <div>
+              <div
+                className="alert alert-warning"
+                style={{
+                  justifyContent: "space-between",
+                  borderRadius: mostrarStockBajo
+                    ? "var(--radius-md) var(--radius-md) 0 0"
+                    : "var(--radius-md)",
+                }}
               >
-                Ver <ChevronRight size={14} />
-              </button>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <AlertCircle size={16} />
+                  <span>{stockBajo.length} producto{stockBajo.length !== 1 ? "s" : ""} con stock bajo (≤5)</span>
+                </div>
+                <button
+                  onClick={() => setMostrarStockBajo(v => !v)}
+                  style={{ background: "none", border: "none", color: "#fcd34d", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}
+                >
+                  Ver {mostrarStockBajo ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </button>
+              </div>
+              {mostrarStockBajo && (
+                <div style={{
+                  background: "rgba(251,191,36,0.06)",
+                  border: "1px solid rgba(251,191,36,0.25)",
+                  borderTop: "none",
+                  borderRadius: "0 0 var(--radius-md) var(--radius-md)",
+                  padding: "6px 14px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}>
+                  {stockBajo.map((p, i) => (
+                    <div key={p.id} style={{
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                      padding: "6px 0",
+                      borderBottom: i < stockBajo.length - 1 ? "1px solid rgba(251,191,36,0.1)" : "none",
+                    }}>
+                      <span style={{ fontSize: "0.85rem" }}>{p.nombre}</span>
+                      <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--color-warning)" }}>{p.cantidad} u</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
+
         </div>
       )}
 
-      {/* ── Métricas del día ── */}
+      {/* ── Métricas de la sesión ── */}
       <div>
         <p className="section-label">
-          Hoy · {formatFecha(new Date().toLocaleDateString("en-CA"))}
+          {cajaAbierta && sesion?.fechaApertura
+            ? `Sesión · desde ${formatHora(sesion.fechaApertura)}`
+            : sesionDisplay
+            ? `Última sesión · ${formatFecha(sesionDisplay.fecha)}`
+            : "Sin sesiones"
+          }
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
           <StatCard
-            label="Vendido" valor={formatBs(sesionHoy?.totalVendido ?? 0)}
+            label="Vendido" valor={formatBs(sesionDisplay?.totalVendido ?? 0)}
             Icon={DollarSign} iconBg="var(--color-primary-dim)" color="var(--color-primary)"
-            subvalor={ventasHoy} sublabel="ventas"
+            subvalor={ventasSesion} sublabel="ventas"
           />
           <StatCard
-            label="Ganancia" valor={formatBs(sesionHoy?.totalGanancia ?? 0)}
+            label="Ganancia" valor={formatBs(sesionDisplay?.totalGanancia ?? 0)}
             Icon={TrendingUp} iconBg="var(--color-success-dim)" color="var(--color-success)"
             subvalor={margen} sublabel="margen"
           />
           <StatCard
-            label="Capital" valor={formatBs(sesionHoy?.totalRecuperacion ?? 0)}
+            label="Capital" valor={formatBs(sesionDisplay?.totalRecuperacion ?? 0)}
             Icon={RefreshCw} iconBg="var(--color-warning-dim)" color="var(--color-warning)"
           />
           <StatCard
@@ -179,7 +335,9 @@ export default function Dashboard({ setPagina }) {
       {ultimasVentas.length > 0 && (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-            <p className="section-label" style={{ marginBottom: 0 }}>Últimas ventas</p>
+            <p className="section-label" style={{ marginBottom: 0 }}>
+              {cajaAbierta ? "Ventas de la sesión" : "Ventas de la última sesión"}
+            </p>
             <button
               onClick={() => setPagina("ventas")}
               style={{ background: "none", border: "none", color: "var(--color-primary)", fontSize: "0.78rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px" }}

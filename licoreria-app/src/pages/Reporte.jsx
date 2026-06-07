@@ -18,6 +18,18 @@ function formatHora(ts) {
   });
 }
 
+function formatPeriodo(s) {
+  if (!s.fechaApertura) return formatFecha(s.fecha); // sesión legada sin timestamps
+  const ap = new Date(s.fechaApertura);
+  const fechaStr = `${ap.getDate().toString().padStart(2,"0")}/${(ap.getMonth()+1).toString().padStart(2,"0")}/${ap.getFullYear()}`;
+  const horaAp = ap.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit" });
+  if (s.fechaCierre) {
+    const horaCi = new Date(s.fechaCierre).toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit" });
+    return `${fechaStr}  ·  ${horaAp} – ${horaCi}`;
+  }
+  return `${fechaStr}  ·  ${horaAp} – ahora`;
+}
+
 function PorcentajeBar({ valor, total, color }) {
   const pct = total > 0 ? Math.min(100, (valor / total) * 100) : 0;
   return (
@@ -56,7 +68,7 @@ export default function Reporte() {
   }, []);
 
   async function cargarDatos() {
-    const sess = await db.sesiones_venta.orderBy("fecha").reverse().toArray();
+    const sess = await db.sesiones_venta.orderBy("id").reverse().toArray();
     setSesiones(sess);
 
     const prods = await db.productos.toArray();
@@ -319,12 +331,13 @@ export default function Reporte() {
               marginBottom: "14px",
             }}
           >
-            <div>
-              <p style={{ fontWeight: 600, fontSize: "1rem" }}>
-                {formatFecha(sesionSel.fecha)}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontWeight: 600, fontSize: "0.9rem" }}>
+                {formatPeriodo(sesionSel)}
               </p>
               <p className="text-muted text-small">
                 {ventasSel.length} venta{ventasSel.length !== 1 ? "s" : ""}
+                {sesionSel.abierta ? " · en curso" : ""}
               </p>
             </div>
             <button
@@ -479,10 +492,10 @@ export default function Reporte() {
                       color: "var(--color-text)",
                     }}
                   >
-                    {formatFecha(s.fecha)}
+                    {formatPeriodo(s)}
                   </p>
                   <p className="text-muted text-small">
-                    {formatBs(s.totalVendido)} vendido
+                    {formatBs(s.totalVendido)} vendido{s.abierta ? " · en curso" : ""}
                   </p>
                 </div>
                 <div style={{ textAlign: "right" }}>

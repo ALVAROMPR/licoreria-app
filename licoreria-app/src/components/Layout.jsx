@@ -64,7 +64,7 @@ export default function Layout({ pagina, setPagina }) {
         {pagina === "dashboard"     && <Dashboard setPagina={setPagina} />}
         {pagina === "productos"     && <Productos />}
         {pagina === "stock"         && <Stock />}
-        {pagina === "ventas"        && <Ventas />}
+        {pagina === "ventas"        && <Ventas setPagina={setPagina} />}
         {pagina === "reporte"       && <Reporte />}
         {pagina === "configuracion" && <Configuracion />}
       </main>

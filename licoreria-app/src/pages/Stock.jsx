@@ -152,7 +152,11 @@ export default function Stock() {
             marginBottom: "20px",
           }}
         >
-          <button onClick={cancelar} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+          <button
+            onClick={cancelar}
+            className="btn btn-ghost"
+            style={{ height: "34px", padding: "0 12px" }}
+          >
             <ArrowLeft size={15} /> Volver
           </button>
           <h2>Registrar entrada de stock</h2>
@@ -276,7 +280,11 @@ export default function Stock() {
             marginBottom: "20px",
           }}
         >
-          <button onClick={() => setVista("stock")} className="btn btn-ghost" style={{ height: "34px", padding: "0 12px" }}>
+          <button
+            onClick={() => setVista("stock")}
+            className="btn btn-ghost"
+            style={{ height: "34px", padding: "0 12px" }}
+          >
             <ArrowLeft size={15} /> Volver
           </button>
           <h2>Historial de entradas</h2>
@@ -335,7 +343,7 @@ export default function Stock() {
                     }}
                   >
                     <p style={{ fontSize: "0.85rem", fontWeight: 500 }}>
-                      {lote.cantidad} uds
+                      Venta unid. {lote.cantidad}
                     </p>
                     <p className="text-muted text-small">
                       {formatBs(lote.costoUnitario)} / u
@@ -352,7 +360,7 @@ export default function Stock() {
                   }}
                 >
                   <span className="text-muted text-small">
-                    Restante: {lote.cantidadRestante} uds
+                    Restante: {lote.cantidadRestante} unidades
                   </span>
                   <span
                     style={{
@@ -391,10 +399,18 @@ export default function Stock() {
       >
         <h2 style={{ fontSize: "1.1rem" }}>Stock actual</h2>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button className="btn btn-ghost" style={{ height: "36px", padding: "0 12px", fontSize: "0.875rem" }} onClick={() => setVista("historial")}>
+          <button
+            className="btn btn-ghost"
+            style={{ height: "36px", padding: "0 12px", fontSize: "0.875rem" }}
+            onClick={() => setVista("historial")}
+          >
             <History size={15} /> Historial
           </button>
-          <button className="btn btn-primary" style={{ height: "36px", padding: "0 14px", fontSize: "0.875rem" }} onClick={() => abrirNuevo()}>
+          <button
+            className="btn btn-primary"
+            style={{ height: "36px", padding: "0 14px", fontSize: "0.875rem" }}
+            onClick={() => abrirNuevo()}
+          >
             <Plus size={16} /> Entrada
           </button>
         </div>
