@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, LogIn, Fingerprint, ChevronRight, ChevronLeft } from 'lucide-react';
 import { verificarLogin, getBiometria, guardarBiometria, getUsuarioPorUsername } from '../db';
-import { isBiometricAvailable, registrarBiometrico, autenticarBiometrico } from '../utils/webauthn';
+import { isBiometricAvailable, registrarBiometrico, autenticarBiometrico, mensajeErrorBio } from '../utils/webauthn';
 import { useAuth } from '../context/AuthContext';
 
 const BIO_SKIP_KEY = 'licoreria_bio_skip';
@@ -58,10 +58,10 @@ export default function Login() {
       }
       login(usuario);
     } catch (err) {
-      if (err.name === 'NotAllowedError') {
-        setError('Verificación cancelada.');
-      } else {
-        setError('No se pudo verificar la huella. Ingresá con contraseña.');
+      const msg = mensajeErrorBio(err);
+      setError(msg);
+      // Solo volver al modo manual en errores que no sean simples cancelaciones
+      if (err.name !== 'NotAllowedError' && err.name !== 'AbortError') {
         setModo('manual');
       }
     } finally {
@@ -113,10 +113,13 @@ export default function Login() {
       localStorage.removeItem(BIO_SKIP_KEY);
       login(pendingUsuario);
     } catch (err) {
-      if (err.name === 'NotAllowedError') {
-        setError('Registro cancelado.');
+      const msg = mensajeErrorBio(err);
+      if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+        // Cancelado — dejamos al usuario intentar de nuevo o omitir
+        setError(msg);
       } else {
-        setError('No se pudo configurar. Podés intentarlo desde Configuración.');
+        // Error real — ingresar igual y ofrecer desde Configuración
+        setError(msg + ' Podés configurarlo desde Configuración.');
         login(pendingUsuario);
       }
     } finally {

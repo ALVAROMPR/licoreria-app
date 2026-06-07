@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { cambiarPassword, db, getBiometria, guardarBiometria, eliminarBiometria } from "../db";
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff, User, Lock, Fingerprint } from "lucide-react";
-import { isBiometricAvailable, registrarBiometrico } from "../utils/webauthn";
+import { isBiometricAvailable, registrarBiometrico, mensajeErrorBio } from "../utils/webauthn";
 
 const BIO_SKIP_KEY = "licoreria_bio_skip";
 
@@ -35,10 +35,9 @@ export default function Configuracion() {
     async function cargarBio() {
       const disponible = await isBiometricAvailable();
       setBioDisponible(disponible);
-      if (disponible) {
-        const bio = await getBiometria();
-        setBioRegistrada(!!bio);
-      }
+      // Siempre cargar si hay credencial guardada (podría estar registrada de antes)
+      const bio = await getBiometria();
+      setBioRegistrada(!!bio);
     }
     cargarBio();
   }, []);
@@ -56,11 +55,7 @@ export default function Configuracion() {
       setBioRegistrada(true);
       setMensajeBio({ texto: "Huella digital configurada correctamente.", tipo: "success" });
     } catch (err) {
-      if (err.name === "NotAllowedError") {
-        setMensajeBio({ texto: "Registro cancelado.", tipo: "danger" });
-      } else {
-        setMensajeBio({ texto: "No se pudo configurar. Intentá de nuevo.", tipo: "danger" });
-      }
+      setMensajeBio({ texto: mensajeErrorBio(err), tipo: "danger" });
     } finally {
       setGestionandoBio(false);
     }
@@ -255,8 +250,8 @@ export default function Configuracion() {
         </div>
       </div>
 
-      {/* Acceso biométrico */}
-      {bioDisponible && (
+      {/* Acceso biométrico — se muestra si WebAuthn existe o si hay credencial guardada */}
+      {(bioDisponible || bioRegistrada) && (
         <div className="card" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Fingerprint size={16} color="var(--color-text-2)" />
@@ -281,7 +276,10 @@ export default function Configuracion() {
           ) : (
             <>
               <p className="text-muted text-small" style={{ lineHeight: 1.6 }}>
-                Iniciá sesión con tu huella digital o reconocimiento facial sin ingresar contraseña.
+                Iniciá sesión con tu huella digital o reconocimiento facial sin escribir contraseña.
+              </p>
+              <p className="text-muted text-small" style={{ lineHeight: 1.6, fontSize: "0.75rem" }}>
+                Al registrar, el sistema del dispositivo mostrará el nombre del sitio (URL). Es normal — es una medida de seguridad del navegador.
               </p>
               <button
                 className="btn btn-primary btn-full"
@@ -289,7 +287,7 @@ export default function Configuracion() {
                 disabled={gestionandoBio}
               >
                 <Fingerprint size={16} />
-                {gestionandoBio ? "Configurando..." : "Habilitar huella digital"}
+                {gestionandoBio ? "Esperando huella..." : "Habilitar huella digital"}
               </button>
             </>
           )}

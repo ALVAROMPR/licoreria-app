@@ -1,18 +1,37 @@
-// WebAuthn — autenticación biométrica con el autenticador de plataforma (huella, Face ID, etc.)
+// WebAuthn — autenticación biométrica con el autenticador de plataforma
 
-// Verifica si el dispositivo tiene autenticador biométrico disponible
-export async function isBiometricAvailable() {
-  if (typeof window === 'undefined' || !window.PublicKeyCredential) return false;
-  try {
-    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-  } catch {
-    return false;
-  }
+// Detecta si se está ejecutando en un dispositivo móvil
+function esMobil() {
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-// Registra una credencial biométrica para el usuario
-// Retorna { credentialId: number[], username: string }
-// Lanza NotAllowedError si el usuario cancela
+// Verifica si el dispositivo soporta biometría WebAuthn.
+// Algunos dispositivos Android (Xiaomi HyperOS, ciertas versiones de Samsung Browser)
+// reportan UVPA=false aunque sí tengan huella hardware.
+// En esos casos usamos el UA como fallback para mostrar la opción y dejar
+// que el dispositivo falle con un error descriptivo si realmente no la soporta.
+export async function isBiometricAvailable() {
+  // WebAuthn requiere HTTPS (o localhost en desarrollo)
+  if (!window.isSecureContext) return false;
+  // Necesita la API base de WebAuthn
+  if (!window.PublicKeyCredential) return false;
+
+  try {
+    const uvpa = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (uvpa) return true;
+  } catch {
+    // La comprobación UVPA falló — en móvil intentamos igual
+  }
+
+  // UVPA=false pero podría ser un reporte incorrecto del browser.
+  // En móvil mostramos la opción; si el dispositivo no la soporta de verdad
+  // recibiremos un error tipado al intentar usarla.
+  return esMobil();
+}
+
+// Registra una credencial biométrica para el usuario.
+// Retorna { credentialId: number[], username }
+// Errores posibles: NotAllowedError, NotSupportedError, SecurityError, InvalidStateError
 export async function registrarBiometrico(userId, username) {
   const challenge = crypto.getRandomValues(new Uint8Array(32));
 
@@ -33,7 +52,7 @@ export async function registrarBiometrico(userId, username) {
         { alg: -257, type: 'public-key' }, // RS256
       ],
       authenticatorSelection: {
-        authenticatorAttachment: 'platform', // usa el autenticador del dispositivo
+        authenticatorAttachment: 'platform',
         userVerification: 'required',
         residentKey: 'preferred',
       },
@@ -47,9 +66,9 @@ export async function registrarBiometrico(userId, username) {
   };
 }
 
-// Autentica con huella/biometría usando una credencial ya registrada
-// No lanza error = autenticación exitosa
-// Lanza NotAllowedError si el usuario cancela o la huella no coincide
+// Autentica con huella/biometría usando una credencial ya registrada.
+// Sin error = autenticación exitosa.
+// Errores posibles: NotAllowedError, NotSupportedError, SecurityError
 export async function autenticarBiometrico(credentialId) {
   const challenge = crypto.getRandomValues(new Uint8Array(32));
 
@@ -65,4 +84,16 @@ export async function autenticarBiometrico(credentialId) {
       timeout: 60000,
     },
   });
+}
+
+// Mapea el nombre de error WebAuthn a un mensaje legible en español
+export function mensajeErrorBio(err) {
+  const mapa = {
+    NotAllowedError:  'Cancelado o tiempo agotado. Intentá de nuevo.',
+    NotSupportedError:'Este dispositivo no admite autenticación biométrica.',
+    SecurityError:    'Error de seguridad. Asegurate de usar la URL HTTPS de la app.',
+    InvalidStateError:'Ya existe una credencial para este dispositivo.',
+    AbortError:       'Operación cancelada.',
+  };
+  return mapa[err?.name] ?? 'No se pudo completar. Intentá de nuevo.';
 }
