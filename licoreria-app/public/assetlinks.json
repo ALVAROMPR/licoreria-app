@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.netlify.cool_seahorse_22b56c.twa",
+    "sha256_cert_fingerprints": [
+      "3B:EA:BE:02:57:ED:6A:D3:EE:48:A1:1D:BE:D5:82:F8:91:F1:FF:EF:34:EC:5C:84:CA:23:F4:D4:C2:93:99:07"
+    ]
+  }
+}]

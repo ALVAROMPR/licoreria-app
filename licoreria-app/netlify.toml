@@ -1,0 +1,17 @@
+[build]
+  publish = "dist"
+
+[[redirects]]
+  from = "/.well-known/assetlinks.json"
+  to = "/assetlinks.json"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/assetlinks.json"
+  [headers.values]
+    Content-Type = "application/json"
