@@ -2,9 +2,16 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/assetlinks.json"
+  to = "/assetlinks.json"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/.well-known/assetlinks.json"
   to = "/assetlinks.json"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
