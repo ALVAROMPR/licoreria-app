@@ -168,3 +168,29 @@ export async function actualizarTotalesSesion(sesionId, precioVenta, costoPromed
     totalGanancia:     sesion.totalGanancia     + ganancia,
   });
 }
+
+// Elimina una venta, restaura el stock (lote de devolución) y ajusta totales de sesión
+export async function eliminarVenta(ventaId) {
+  const venta = await db.ventas.get(ventaId);
+  if (!venta) return;
+
+  await db.lotes.add({
+    productoId:       venta.productoId,
+    cantidad:         venta.cantidad,
+    cantidadRestante: venta.cantidad,
+    costoUnitario:    venta.costoPromedio,
+    proveedor:        'Anulación',
+    fecha:            Date.now(),
+  });
+
+  const sesion = await db.sesiones_venta.get(venta.sesionId);
+  if (sesion) {
+    await db.sesiones_venta.update(venta.sesionId, {
+      totalVendido:      (sesion.totalVendido      || 0) - venta.precioVenta * venta.cantidad,
+      totalRecuperacion: (sesion.totalRecuperacion || 0) - venta.recuperacion,
+      totalGanancia:     (sesion.totalGanancia     || 0) - venta.ganancia,
+    });
+  }
+
+  await db.ventas.delete(ventaId);
+}

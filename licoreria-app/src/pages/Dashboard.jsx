@@ -202,10 +202,11 @@ export default function Dashboard({ setPagina }) {
 
           {sinStock.length > 0 && (
             <div>
-              <div
+              <button
                 className="alert alert-danger"
+                onClick={() => setMostrarSinStock(v => !v)}
                 style={{
-                  justifyContent: "space-between",
+                  width: "100%", justifyContent: "space-between", cursor: "pointer",
                   borderRadius: mostrarSinStock
                     ? "var(--radius-md) var(--radius-md) 0 0"
                     : "var(--radius-md)",
@@ -215,13 +216,8 @@ export default function Dashboard({ setPagina }) {
                   <AlertTriangle size={16} />
                   <span>{sinStock.length} producto{sinStock.length !== 1 ? "s" : ""} sin stock</span>
                 </div>
-                <button
-                  onClick={() => setMostrarSinStock(v => !v)}
-                  style={{ background: "none", border: "none", color: "#fca5a5", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}
-                >
-                  Ver {mostrarSinStock ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                </button>
-              </div>
+                {mostrarSinStock ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+              </button>
               {mostrarSinStock && (
                 <div style={{
                   background: "rgba(239,68,68,0.06)",
@@ -249,10 +245,11 @@ export default function Dashboard({ setPagina }) {
 
           {stockBajo.length > 0 && (
             <div>
-              <div
+              <button
                 className="alert alert-warning"
+                onClick={() => setMostrarStockBajo(v => !v)}
                 style={{
-                  justifyContent: "space-between",
+                  width: "100%", justifyContent: "space-between", cursor: "pointer",
                   borderRadius: mostrarStockBajo
                     ? "var(--radius-md) var(--radius-md) 0 0"
                     : "var(--radius-md)",
@@ -262,13 +259,8 @@ export default function Dashboard({ setPagina }) {
                   <AlertCircle size={16} />
                   <span>{stockBajo.length} producto{stockBajo.length !== 1 ? "s" : ""} con stock bajo (≤5)</span>
                 </div>
-                <button
-                  onClick={() => setMostrarStockBajo(v => !v)}
-                  style={{ background: "none", border: "none", color: "#fcd34d", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}
-                >
-                  Ver {mostrarStockBajo ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                </button>
-              </div>
+                {mostrarStockBajo ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+              </button>
               {mostrarStockBajo && (
                 <div style={{
                   background: "rgba(251,191,36,0.06)",

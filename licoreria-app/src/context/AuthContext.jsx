@@ -7,6 +7,23 @@ import {
 
 const AuthContext = createContext(null);
 const SESSION_KEY = "licoreria_session";
+const SESSION_DURATION = 3 * 60 * 60 * 1000; // 3 horas en ms
+
+function obtenerSesionValida() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const sesion = JSON.parse(raw);
+    if (!sesion.loginAt || Date.now() - sesion.loginAt > SESSION_DURATION) {
+      localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return sesion;
+  } catch {
+    localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+}
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
@@ -14,28 +31,36 @@ export function AuthProvider({ children }) {
   const [pagina, setPagina] = useState("dashboard");
 
   useEffect(() => {
-    try {
-      const guardado = sessionStorage.getItem(SESSION_KEY);
-      if (guardado) {
-        setUsuario(JSON.parse(guardado));
+    const sesion = obtenerSesionValida();
+    if (sesion) setUsuario(sesion);
+    setCargando(false);
+
+    function onVisibility() {
+      if (document.visibilityState === "visible") {
+        if (!obtenerSesionValida()) {
+          setUsuario(null);
+          setPagina("dashboard");
+        }
       }
-    } catch {
-      sessionStorage.removeItem(SESSION_KEY);
-    } finally {
-      setCargando(false);
     }
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
   function login(usuarioData) {
-    const sesion = { id: usuarioData.id, username: usuarioData.username };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
-    setPagina("dashboard"); // siempre resetear al login
+    const sesion = {
+      id: usuarioData.id,
+      username: usuarioData.username,
+      loginAt: Date.now(),
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
+    setPagina("dashboard");
     setUsuario(sesion);
   }
 
   function logout() {
-    sessionStorage.removeItem(SESSION_KEY);
-    setPagina("dashboard"); // limpiar también al salir
+    localStorage.removeItem(SESSION_KEY);
+    setPagina("dashboard");
     setUsuario(null);
   }
 

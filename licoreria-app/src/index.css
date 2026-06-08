@@ -281,3 +281,36 @@ h3 { font-size: 1rem;    font-weight: 600; }
     box-shadow: 0 0 0 1px var(--color-border), 0 0 60px rgba(0,0,0,0.6);
   }
 }
+
+/* ─── Tema claro ─────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg:          #f1f3fb;
+  --color-surface:     #ffffff;
+  --color-surface2:    #f5f7fd;
+  --color-surface3:    #edf0f8;
+  --color-border:      rgba(0,0,0,0.08);
+  --color-border-2:    rgba(0,0,0,0.15);
+  --color-text:        #1a1e30;
+  --color-text-2:      #525c7a;
+  --color-text-3:      #9aa0b8;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+
+[data-theme="light"] .btn-danger   { color: #b91c1c; }
+[data-theme="light"] .alert-danger { color: #b91c1c; }
+[data-theme="light"] .alert-success { color: #15803d; }
+[data-theme="light"] .alert-warning { color: #92400e; }
+[data-theme="light"] .badge-purple  { color: #5b4fcf; }
+[data-theme="light"] .badge-green   { color: #15803d; }
+[data-theme="light"] .badge-amber   { color: #92400e; }
+[data-theme="light"] .badge-red     { color: #b91c1c; }
+[data-theme="light"] .badge-blue    { color: #1d4ed8; }
+[data-theme="light"] .text-success  { color: #15803d; }
+[data-theme="light"] .text-danger   { color: #b91c1c; }
+[data-theme="light"] .text-warning  { color: #92400e; }
+
+@media (min-width: 520px) {
+  [data-theme="light"] body         { background: #d4d9ee; }
+  [data-theme="light"] body > #root { box-shadow: 0 0 0 1px var(--color-border), 0 0 60px rgba(0,0,0,0.1); }
+}

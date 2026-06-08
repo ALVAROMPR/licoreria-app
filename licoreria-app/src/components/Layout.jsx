@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import Dashboard from "../pages/Dashboard";
 import Productos from "../pages/Productos";
@@ -8,6 +9,7 @@ import Configuracion from "../pages/Configuracion";
 import {
   LayoutDashboard, Package, Warehouse,
   ShoppingCart, BarChart3, Settings, LogOut,
+  Sun, Moon,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -20,6 +22,15 @@ const NAV_ITEMS = [
 
 export default function Layout({ pagina, setPagina }) {
   const { usuario, logout } = useAuth();
+
+  const [tema, setTema] = useState(
+    () => localStorage.getItem("licoreria_tema") ?? "dark"
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", tema);
+    localStorage.setItem("licoreria_tema", tema);
+  }, [tema]);
 
   return (
     <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", maxWidth: "480px", margin: "0 auto" }}>
@@ -42,13 +53,20 @@ export default function Layout({ pagina, setPagina }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <button
+            onClick={() => setTema(t => t === "dark" ? "light" : "dark")}
+            className="btn btn-ghost btn-icon"
+            title={tema === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+          >
+            {tema === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+          <button
             onClick={() => setPagina("configuracion")}
             className="btn btn-ghost btn-icon"
             title={`Configuración (${usuario.username})`}
             style={{
-              color:      pagina === "configuracion" ? "var(--color-primary)" : undefined,
-              background: pagina === "configuracion" ? "var(--color-primary-dim)" : undefined,
-              borderColor:pagina === "configuracion" ? "transparent" : undefined,
+              color:       pagina === "configuracion" ? "var(--color-primary)" : undefined,
+              background:  pagina === "configuracion" ? "var(--color-primary-dim)" : undefined,
+              borderColor: pagina === "configuracion" ? "transparent" : undefined,
             }}
           >
             <Settings size={17} />
